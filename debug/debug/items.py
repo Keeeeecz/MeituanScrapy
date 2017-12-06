@@ -13,6 +13,7 @@ class DebugItem(scrapy.Item):
     # name = scrapy.Field()
     pass
 class MTItem(scrapy.Item):
+    city = scrapy.Field()
     title = scrapy.Field()
     avgPrice = scrapy.Field()
     address = scrapy.Field()

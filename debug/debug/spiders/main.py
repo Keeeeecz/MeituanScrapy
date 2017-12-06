@@ -13,10 +13,23 @@ sys.setdefaultencoding('gbk')
 
 class DmozSpider(scrapy.spiders.Spider):
     i = 1
+    totalCounts = 1
+    city = 0
     name = "meituan"
-    download_delay = 10
+    download_delay = 5
+    cityName = ["杭州","广州","上海","北京","深圳","西安","重庆","南京","武汉","成都","兰州"]
     start_urls = [
-        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E6%9D%AD%E5%B7%9E&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1"
+        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E6%9D%AD%E5%B7%9E&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1",
+        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E5%B9%BF%E5%B7%9E&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1",
+        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E4%B8%8A%E6%B5%B7&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1",
+        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E5%8C%97%E4%BA%AC&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1",
+        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E6%B7%B1%E5%9C%B3&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1",
+        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E8%A5%BF%E5%AE%89&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1",
+        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E9%87%8D%E5%BA%86&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1",
+        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E5%8D%97%E4%BA%AC&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1",
+        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E6%AD%A6%E6%B1%89&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1",
+        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E6%88%90%E9%83%BD&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1",
+        "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E5%85%B0%E5%B7%9E&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=1"
     ]
 
     cookie = settings['COOKIE']  # 带着Cookie向网页发请求
@@ -33,9 +46,13 @@ class DmozSpider(scrapy.spiders.Spider):
 
     # 爬虫的起点
     def start_requests(self):
+        self.city += 1
         # 带着cookie向网站服务器发请求，表明我们是一个已登录的用户
-        yield Request(self.start_urls[0], callback=self.parse, cookies=self.cookie,
+        if self.start_urls[self.city-1]:
+            yield Request(self.start_urls[self.city-1], callback=self.parse, cookies=self.cookie,
                       headers=self.headers, meta=self.meta)
+        else:
+            return
 
     def parse(self, response):
         """
@@ -43,38 +60,53 @@ class DmozSpider(scrapy.spiders.Spider):
         http://doc.scrapy.org/en/latest/topics/contracts.html
         @scrapes name
         """
-        if self.i > 19:
-            return
+
         next_url = "http://hz.meituan.com/meishi/"
-        url = "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E6%9D%AD%E5%B7%9E&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page="
+        url = [
+                "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E6%9D%AD%E5%B7%9E&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=",
+                "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E5%B9%BF%E5%B7%9E&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=",
+                "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E4%B8%8A%E6%B5%B7&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=",
+                "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E5%8C%97%E4%BA%AC&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=",
+                "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E6%B7%B1%E5%9C%B3&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=",
+                "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E8%A5%BF%E5%AE%89&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=",
+                "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E9%87%8D%E5%BA%86&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=",
+                "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E5%8D%97%E4%BA%AC&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=",
+                "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E6%AD%A6%E6%B1%89&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=",
+                "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E6%88%90%E9%83%BD&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page=",
+                "http://hz.meituan.com/meishi/api/poi/getPoiList?cityName=%E5%85%B0%E5%B7%9E&cateId=0&areaId=0&sort=&dinnerCountAttrId=&page="
+               ]
 
         jsDict = json.loads(response.body)
         jsData = jsDict['data']
+        self.totalCounts = jsData['totalCounts']
+        if self.i > self.totalCounts:
+            self.i = 1
+            self.start_requests()
         jsPoiInfos = jsData['poiInfos']
         for each in jsPoiInfos:
                 item = MTItem()
                 next = next_url+str(each['poiId'])+"/"
-                item['title'] = each['title']
-                item['address'] = each['address']
-                item['avgPrice'] = each['avgPrice']
-                item['avgScore'] = each['avgScore']
                 if next:
-                    yield Request(next, meta={'item': item}, callback=self.nextPage)
-                if each['poiId']==2508925:
-                    return
-                yield item
-        self.i += 1
-        url = url + str(self.i)
-        yield Request(url, callback=self.parse)
+                    yield Request(next, meta={'item': item,'each':each}, callback=self.nextPage)
+
+        url[self.city] = url[self.city] + str(self.i)
+        yield Request(url[self.city], callback=self.parse)
 
 
     def nextPage(self,response):
         item = response.meta['item']
+        each = response.meta['each']
         lon = re.search('"longitude":((\\d\d\d)(\\.\\d+))',response.body,re.S).group(0)
         lat = re.search('"latitude":((\\d\d)(\\.\\d+))',response.body,re.S).group(0)
         longitude = lon.split(":")
         latitude = lat.split(":")
+        item['city'] = self.cityName[self.city-1]
+        item['title'] = each['title']
+        item['address'] = each['address']
+        item['avgPrice'] = each['avgPrice']
+        item['avgScore'] = each['avgScore']
         item['longitude'] = longitude[1]
         item['latitude'] = latitude[1]
+        self.i += 1
         return item
 

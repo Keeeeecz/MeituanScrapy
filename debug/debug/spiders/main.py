@@ -12,7 +12,8 @@ sys.setdefaultencoding('gbk')
 
 
 class DmozSpider(scrapy.spiders.Spider):
-    i = 1
+    pageCounts = 1
+    i = 0
     totalCounts = 1
     city = 0
     name = "meituan"
@@ -80,7 +81,8 @@ class DmozSpider(scrapy.spiders.Spider):
         jsData = jsDict['data']
         self.totalCounts = jsData['totalCounts']
         if self.i > self.totalCounts:
-            self.i = 1
+            self.pageCounts = 1
+            self.i = 0
             self.start_requests()
         jsPoiInfos = jsData['poiInfos']
         for each in jsPoiInfos:
@@ -88,8 +90,8 @@ class DmozSpider(scrapy.spiders.Spider):
                 next = next_url+str(each['poiId'])+"/"
                 if next:
                     yield Request(next, meta={'item': item,'each':each}, callback=self.nextPage)
-
-        url[self.city] = url[self.city] + str(self.i)
+        self.pageCounts += 1
+        url[self.city] = url[self.city] + str(self.pageCounts)
         yield Request(url[self.city], callback=self.parse)
 
 
